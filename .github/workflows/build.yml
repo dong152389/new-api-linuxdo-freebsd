@@ -17,7 +17,7 @@ jobs:
 
       - name: Clone Repo
         run: |
-            export LATEST_APP=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
+            export LATEST_APP=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"\$5;exit}')
             git clone -b $LATEST_APP https://github.com/linux-do/new-api
 
       - name: Build Frontend
@@ -38,9 +38,6 @@ jobs:
             pkg install -y jq wget curl git gcc bash gawk gsed
             wget https://dl.google.com/go/go1.22.0.freebsd-amd64.tar.gz && tar -C /usr/local -xzf go1.22.0.freebsd-amd64.tar.gz && rm go1.22.0.freebsd-amd64.tar.gz
             ln -s /usr/local/go/bin/go /usr/local/bin/go
-          # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          # echo '. $HOME/.cargo/env' >> ~/.bashrc
-          # . "$HOME/.cargo/env"
           run: |
             git config --global --add safe.directory /home/runner/work/new-api-linuxdo-freebsd/new-api-linuxdo-freebsd/new-api
             cd new-api
@@ -56,12 +53,19 @@ jobs:
   
       - name: Generate release tag
         id: tag
-        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')" >> $GITHUB_OUTPUT
+        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"\$5;exit}')" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          TAG_EXISTS=$(wget -qO- https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ steps.tag.outputs.release_tag }} | jq -r '.message')
+          echo "tag_exists=${TAG_EXISTS}" >> $GITHUB_OUTPUT
 
       - name: Create release
+        if: steps.check_tag.outputs.tag_exists == 'Not Found'
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
           files: |
