@@ -42,7 +42,7 @@ jobs:
           # echo '. $HOME/.cargo/env' >> ~/.bashrc
           # . "$HOME/.cargo/env"
           run: |
-            git config --global --add safe.directory /home/runner/work/new-api-freebsd/new-api-freebsd/new-api
+            git config --global --add safe.directory /home/runner/work/new-api-linuxdo-freebsd/new-api-linuxdo-freebsd/new-api
             cd new-api
             go mod download
             go build -ldflags "-s -w -X 'one-api/common.Version=$(git describe --tags)' -extldflags '-static'" -o new-api
