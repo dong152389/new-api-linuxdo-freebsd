@@ -17,7 +17,7 @@ jobs:
 
       - name: Clone Repo
         run: |
-            export LATEST_APP=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"\$5;exit}')
+            export LATEST_APP=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
             git clone -b $LATEST_APP https://github.com/linux-do/new-api
 
       - name: Build Frontend
@@ -45,18 +45,18 @@ jobs:
             git config --global --add safe.directory /home/runner/work/new-api-linuxdo-freebsd/new-api-linuxdo-freebsd/new-api
             cd new-api
             go mod download
-            go build -ldflags "-s -w -X 'new-api/common.Version=$(git describe --tags)' -extldflags '-static'" -o new-api
+            go build -ldflags "-s -w -X 'one-api/common.Version=$(git describe --tags)' -extldflags '-static'" -o new-api
 
       - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: new-api-freebsd
+          name: new-api-linuxdo-freebsd
           path: |
               new-api/new-api
   
       - name: Generate release tag
         id: tag
-        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"\$5;exit}')" >> $GITHUB_OUTPUT
+        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/linux-do/new-api/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v1
