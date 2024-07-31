@@ -1,2 +1,2 @@
-# New-API-FreeBSD
-针对[Linux-do](https://github.com/linux-do/new-api)new-api构建的freebsd版本
+# New-API-LinuxDo-FreeBSD
+对[linuxdo-new-api](https://github.com/linux-do/new-api)的freebsd版本构建
